@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css">
+    <title>List jira customfields!</title>
+</head>
+
+<body>
+    <br />
+    <div class="container">
+        <div class="row">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Field types
+                </button>
+                <div id='drpFields' class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                </div>
+            </div><br />
+            <table id='fieldstable' data-custom-search="customSearch">
+            </table>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" language="javascript" src="test.json"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
+    <script>
+        $(function () {
+            let names = [];
+            var fieldTypeNames = [];
+            data.forEach(n => {
+                if (n.id.startsWith('customfield')) {
+                    names.push(n);
+                    console.log(n);
+                }
+                if (n.schema && !fieldTypeNames.includes(n.schema.type)) {
+                    fieldTypeNames.push(n.schema.type)
+                    $('#drpFields').append(`<a class="dropdown-item" onclick="filterTable('${n.schema.type}')" href="#">${n.schema.type}</a>`);
+                }
+            });
+            /*names = [];
+            data.forEach(n => {
+                if (n.schema && !names.includes(n.schema.type)) {
+                    names.push(n);
+                    console.log(n);
+                }
+            });*/
+            console.log(names)
+            names.forEach(n => {
+                $('#list').append(`<a href="#${n.id}" onclick=showDetails("${n.id}") class="list-group-item">${n.name}</a>`);
+                // $('#list').append(`<a href="#" class="list-group-item">${n.schema.type}</a>`);
+            });
+            $('#fieldstable').bootstrapTable({
+                data: data,
+                pagination: true,
+                search: true,
+                columns: [{
+                    field: 'id',
+                    title: 'ID',
+                    sortable: true
+                }, {
+                    field: 'name',
+                    title: 'Name',
+                    sortable: true
+                }, {
+                    field: 'schema.type',
+                    title: 'Type',
+                    sortable: true
+                }]
+            })
+        });
+
+        function showDetails(id) {
+            data.forEach(n => {
+                if (n.id == id) {
+                    console.log(n);
+                    $('#details').text(JSON.stringify(n, undefined, 4))
+                }
+            });
+        }
+
+        function filterTable(typeName) {
+            var tmpList = [];
+            data.forEach(n => {
+                if (n.schema && n.schema.type === typeName) {
+                    tmpList.push(n);
+                }
+            });
+            $('#fieldstable').bootstrapTable('load', tmpList)
+        }
+
+        function customSearch(data, text) {
+            return data.filter(function (row) {
+                let txt = row.name;
+                if (row.schema) txt += row.schema.type;
+                return txt.toLowerCase().indexOf(text.toLowerCase()) > -1;
+            })
+        }
+
+    </script>
+</body>
+
+</html>
