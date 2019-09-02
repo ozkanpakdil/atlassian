@@ -47,10 +47,7 @@
             let names = [];
             var fieldTypeNames = [];
             data.forEach(n => {
-                if (n.id.startsWith('customfield')) {
-                    names.push(n);
-                    console.log(n);
-                }
+                names.push(n);
                 if (n.schema && !fieldTypeNames.includes(n.schema.type)) {
                     fieldTypeNames.push(n.schema.type)
                     $('#drpFields').append(`<a class="dropdown-item" onclick="filterTable('${n.schema.type}')" href="#">${n.schema.type}</a>`);
@@ -84,17 +81,21 @@
                     field: 'schema.type',
                     title: 'Type',
                     sortable: true
+                }, {
+                    field: 'operate',
+                    title: 'Add/Remove',
+                    align: 'center',
+                    valign: 'middle',
+                    clickToSelect: false,
+                    formatter: function (value, row, index) {
+                        return `<button class='btn btn-primary' onclick="addRemove('${row.id}')">Toggle</button>`;
+                    }
                 }]
             })
         });
 
-        function showDetails(id) {
-            data.forEach(n => {
-                if (n.id == id) {
-                    console.log(n);
-                    $('#details').text(JSON.stringify(n, undefined, 4))
-                }
-            });
+        function addRemove(row) {
+            alert(JSON.stringify(row))
         }
 
         function filterTable(typeName) {
